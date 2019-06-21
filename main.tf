@@ -2,32 +2,13 @@ terraform {
   required_version = ">= 0.12.0"
 }
 
-data "google_client_config" "default" {}
-
 provider "kubernetes" {
   host = var.endpoint
 
-  token = data.google_client_config.default.access_token
+  token = var.access_token
   cluster_ca_certificate = var.cluster_ca_certificate
 
   load_config_file = false
-}
-
-resource "kubernetes_service" "nodejs" {
-  metadata {
-    name = "terraform-nodejs"
-  }
-  spec {
-    selector = {
-      App = kubernetes_deployment.nodejs.metadata.0.labels.app
-    }
-    port {
-      port = 80
-      target_port = var.target_port
-    }
-
-    type = "LoadBalancer"
-  }
 }
 
 resource "kubernetes_deployment" "nodejs" {
@@ -52,12 +33,32 @@ resource "kubernetes_deployment" "nodejs" {
       }
       spec {
         container {
-          image = "nginx:1.7.8"
+          image = "node:12"
           name  = "node-js"
-          command = [] # /usr/share/nginx/html
-          # volume_mount
+          command = ["/bin/bash"]
+          args = [
+            "-c",
+            "cd /usr/src/ && git clone https://github.com/fhinkel/nodejs-hello-world.git && /usr/local/bin/node /usr/src/nodejs-hello-world/index.js"
+          ]
         }
       }
     }
+  }
+}
+
+resource "kubernetes_service" "nodejs" {
+  metadata {
+    name = "terraform-nodejs"
+  }
+  spec {
+    selector = {
+      app = kubernetes_deployment.nodejs.metadata.0.labels.app
+    }
+    port {
+      port = var.app_port
+      target_port = var.target_port
+    }
+
+    type = "LoadBalancer"
   }
 }
