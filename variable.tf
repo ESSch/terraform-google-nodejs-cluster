@@ -8,7 +8,11 @@ variable "number_replicas" {
   default = 3
 }
 
-variable "name_image" {
+variable "name_app" {
+  default = "NodeJS"
+}
+
+variable "name_container" {
   default = "node-js"
 }
 
@@ -17,10 +21,10 @@ variable "name_service" {
 }
 
 variable "image" {
-  default = "google/nodejs-hello"
+  default = "nginx:1.17"
 }
 
-variable "target_port" {
+variable "extend_port" {
   default = 80
 }
 

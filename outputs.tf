@@ -9,6 +9,6 @@ output "nodejs_hostname" {
 }
 
 output "url" {
-  value = "http://${var.endpoint}:${var.target_port}"
+  value = "http://${var.endpoint}:${var.extend_port}"
   sensitive = true
 }

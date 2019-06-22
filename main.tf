@@ -15,26 +15,26 @@ resource "kubernetes_deployment" "nodejs" {
   metadata {
     name = var.name_service
     labels = {
-      app = var.name_image
+      app = var.name_app
     }
   }
   spec {
     replicas = var.number_replicas
     selector {
       match_labels = {
-        app = var.name_image
+        app = var.name_app
       }
     }
     template {
       metadata {
         labels = {
-          app = var.name_image
+          app = var.name_app
         }
       }
       spec {
         container {
           image = var.image
-          name  = var.name_image
+          name  = var.name_container
         }
       }
     }
@@ -51,8 +51,8 @@ resource "kubernetes_service" "nodejs" {
       app = kubernetes_deployment.nodejs.metadata.0.labels.app
     }
     port {
-      port = var.app_port
-      target_port = var.target_port
+      port = var.extend_port
+      target_port = var.app_port
     }
 
     type = "LoadBalancer"
