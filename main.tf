@@ -13,42 +13,38 @@ provider "kubernetes" {
 
 resource "kubernetes_deployment" "nodejs" {
   metadata {
-    name = "terraform-nodejs"
+    name = var.name_service
     labels = {
-      app = "NodeJS"
+      app = var.name_image
     }
   }
   spec {
-    replicas = 3
+    replicas = var.number_replicas
     selector {
       match_labels = {
-        app = "NodeJS"
+        app = var.name_image
       }
     }
     template {
       metadata {
         labels = {
-          app = "NodeJS"
+          app = var.name_image
         }
       }
       spec {
         container {
-          image = "node:12"
-          name  = "node-js"
-          command = ["/bin/bash"]
-          args = [
-            "-c",
-            "cd /usr/src/ && git clone https://github.com/fhinkel/nodejs-hello-world.git && /usr/local/bin/node /usr/src/nodejs-hello-world/index.js"
-          ]
+          image = var.image
+          name  = var.name_image
         }
       }
     }
   }
+  depends_on = [var.endpoint]
 }
 
 resource "kubernetes_service" "nodejs" {
   metadata {
-    name = "terraform-nodejs"
+    name = var.name_service
   }
   spec {
     selector = {
@@ -61,4 +57,5 @@ resource "kubernetes_service" "nodejs" {
 
     type = "LoadBalancer"
   }
+  depends_on = [kubernetes_deployment.nodejs]
 }
