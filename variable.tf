@@ -32,3 +32,7 @@ variable "app_port" {
   default = 80
 }
 
+variable "limit_cpu" {
+  default = "1"
+}
+

@@ -35,11 +35,38 @@ resource "kubernetes_deployment" "nodejs" {
         container {
           image = var.image
           name  = var.name_container
+//          resources {
+//            requests {
+//              memory = "3000Mi"
+//              cpu = "500m"
+//            }
+//            limits {
+//              memory = "3000Mi"
+//              cpu = "1"
+//            }
+//          }
+//          image_pull_policy = "IfNotPresent"
+//          env {
+//            name = ""
+//          }
+//          liveness_probe {
+//            http_get {
+//              path = "/"
+//              port = var.app_port
+//            }
+//
+//            initial_delay_seconds = 10
+//            period_seconds        = 3
+//          }
         }
       }
     }
   }
   depends_on = [var.endpoint]
+}
+
+locals {
+  app = kubernetes_deployment.nodejs.metadata.0.labels.app
 }
 
 resource "kubernetes_service" "nodejs" {
@@ -48,7 +75,7 @@ resource "kubernetes_service" "nodejs" {
   }
   spec {
     selector = {
-      app = kubernetes_deployment.nodejs.metadata.0.labels.app
+      app = local.app
     }
     port {
       port = var.extend_port
@@ -57,5 +84,5 @@ resource "kubernetes_service" "nodejs" {
 
     type = "LoadBalancer"
   }
-  depends_on = [kubernetes_deployment.nodejs]
+  depends_on = [local.app]
 }
