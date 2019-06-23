@@ -35,29 +35,26 @@ resource "kubernetes_deployment" "nodejs" {
         container {
           image = var.image
           name  = var.name_container
-//          resources {
-//            requests {
-//              memory = "3000Mi"
-//              cpu = "500m"
-//            }
-//            limits {
-//              memory = "3000Mi"
-//              cpu = "1"
-//            }
-//          }
-//          image_pull_policy = "IfNotPresent"
-//          env {
-//            name = ""
-//          }
-//          liveness_probe {
-//            http_get {
-//              path = "/"
-//              port = var.app_port
-//            }
-//
-//            initial_delay_seconds = 10
-//            period_seconds        = 3
-//          }
+          resources {
+            requests {
+              memory = var.limit_memory
+              cpu = var.limit_cpu
+            }
+            limits {
+              memory = var.limit_memory
+              cpu = var.limit_cpu
+            }
+          }
+          image_pull_policy = "IfNotPresent"
+          liveness_probe {
+            http_get {
+              path = "/"
+              port = var.app_port
+            }
+
+            initial_delay_seconds = 10
+            period_seconds        = 3
+          }
         }
       }
     }

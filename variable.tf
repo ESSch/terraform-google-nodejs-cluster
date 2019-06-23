@@ -33,6 +33,10 @@ variable "app_port" {
 }
 
 variable "limit_cpu" {
-  default = "1"
+  default = "0.5"
+}
+
+variable "limit_memory" {
+  default = "2000Mi"
 }
 
