@@ -52,7 +52,7 @@ resource "kubernetes_deployment" "nodejs" {
           image = var.image
           name  = var.name_container
           volume_mount {
-            mount_path = "/${var.name_secret}}"
+            mount_path = "/${var.name_secret}"
             name = var.name_secret
           }
           resources {
