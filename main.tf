@@ -20,6 +20,13 @@ resource "kubernetes_deployment" "nodejs" {
   }
   spec {
     replicas = var.number_replicas
+    strategy {
+      type = "RollingUpdate"
+      rolling_update {
+        max_surge = "1"
+        max_unavailable = "1"
+      }
+    }
     selector {
       match_labels = {
         app = var.name_app
@@ -32,9 +39,22 @@ resource "kubernetes_deployment" "nodejs" {
         }
       }
       spec {
+        image_pull_secrets {
+          name = var.name_secret
+        }
+        volume {
+          name = var.name_secret
+          secret {
+            secret_name = var.name_secret
+          }
+        }
         container {
           image = var.image
           name  = var.name_container
+          volume_mount {
+            mount_path = "/${var.name_secret}}"
+            name = var.name_secret
+          }
           resources {
             requests {
               memory = var.limit_memory
@@ -45,7 +65,7 @@ resource "kubernetes_deployment" "nodejs" {
               cpu = var.limit_cpu
             }
           }
-          image_pull_policy = "IfNotPresent"
+          image_pull_policy = "Always" # if you use cloud build to latest image
           liveness_probe {
             http_get {
               path = "/"
@@ -72,7 +92,7 @@ resource "kubernetes_service" "nodejs" {
   }
   spec {
     selector = {
-      app = local.app
+      app = var.name_app
     }
     port {
       port = var.extend_port
@@ -82,4 +102,16 @@ resource "kubernetes_service" "nodejs" {
     type = "LoadBalancer"
   }
   depends_on = [local.app]
+}
+
+resource "kubernetes_secret" "nodejs_secret" {
+  metadata {
+    name = var.name_secret
+  }
+
+  data = {
+    ".dockerconfigjson" = file("${path.root}/${var.name_secret}.json")
+  }
+
+  type = "kubernetes.io/dockerconfigjson"
 }

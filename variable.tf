@@ -40,3 +40,10 @@ variable "limit_memory" {
   default = "2000Mi"
 }
 
+variable "image_secret" {
+  default = false
+}
+
+variable "name_secret" {
+  default = "nodejs-secret"
+}
